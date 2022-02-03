@@ -194,7 +194,7 @@ addIterativeLSI <- function(
     tileSize <- NA
   }
 
-  units <- unique(unlist(lapply(ArrowFiles, function(x) h5read(x,  paste0(useMatrix, "/Info/Units"))))
+  units <- unique(unlist(lapply(ArrowFiles, function(x) h5read(x)))
   if(length(units) != 1){
     stop("Units of matrices are not identical!")
   }
