@@ -56,6 +56,7 @@ reformatFragmentFiles <- function(
   for(i in seq_along(fragmentFiles)){
     message(i, " of ", length(fragmentFiles))
     dt <- data.table::fread(fragmentFiles[i])
+    names(dt) <- c("V1", "V2", "V3" , "V4", "V5")
     dt <- dt[order(dt$V1,dt$V2,dt$V3), ]
     if(checkChrPrefix){
       idxRemove1 <- which(substr(dt$V1,1,3) != "chr")
