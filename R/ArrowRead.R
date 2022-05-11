@@ -250,7 +250,8 @@ getFragmentsFromArrow <- function(
 #' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
-#' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
+#' @param binarize A boolean value indicating whether the matrix should be binarized before return.
+#' This is often desired when working with insertion counts. Note that if the matrix has already been binarized previously, this should be set to `TRUE`.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 getMatrixFromProject <- function(
@@ -922,7 +923,7 @@ getMatrixFromArrow <- function(
     #Check if samples have NAs due to N = 1 sample or some other weird thing.
     #Set it to min non NA variance
     dfVars <- lapply(seq_len(nrow(dfVars)), function(x){
-      vx <- dfVars[x, ]
+      vx <- dfVars[x, , drop = FALSE]
       if(any(is.na(vx))){
         vx[is.na(vx)] <- min(vx[!is.na(vx)])
       }

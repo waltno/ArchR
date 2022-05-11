@@ -219,7 +219,12 @@ getMarkerFeatures <- function(
     }else{
       if(tolower(normBy) == "none"){
         normFactors <- NULL
+      }else if(normBy %in% colnames(ArchRProj@cellColData)) {
+        normFactors <- getCellColData(ArchRProj, normBy, drop=FALSE)
+        normFactors[,1] <- median(normFactors[,1]) / normFactors[,1]
       }else{
+        .logMessage("Warning! Parameter 'normBy' was set to ", normBy," but no matching column was found in cellColData.\n",
+                    "Continuing with normalization based on column sums of matrix!", verbose = verbose, logFile = logFile)
         normFactors <- scaleTo / mColSums
         normFactors <- DataFrame(normFactors)
       }
@@ -419,7 +424,16 @@ getMarkerFeatures <- function(
 
   }) %>% Reduce("rbind", .)
 
-  idxFilter <- rowSums(pairwiseDF[,c("mean1","mean2")]) != 0
+  #Check for Mean being 0 for both Mean1 and Mean2
+  idxFilter1 <- rowSums(pairwiseDF[,c("mean1","mean2")]) != 0
+
+  #Check For NA in Either Mean1 Mean2
+  idxFilter2 <- rowSums(is.na(pairwiseDF[,c("mean1","mean2")])) == 0
+  
+  #Combo Check
+  idxFilter <- idxFilter1 & idxFilter2
+
+  #FDR
   pairwiseDF$fdr <- NA
   pairwiseDF$fdr[idxFilter] <- p.adjust(pairwiseDF$pval[idxFilter], method = "fdr")
   pairwiseDF <- pairwiseDF[rownames(featureDF), , drop = FALSE]
@@ -1219,13 +1233,16 @@ markerPlot <- function(...){
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted.
 #' `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param plotAs A string indicating whether to plot a volcano plot ("Volcano") or an MA plot ("MA").
+#' @param rastr A boolean value that indicates whether the plot should be rasterized using `ggrastr`. This does not rasterize
+#' lines and labels, just the internal portions of the plot.
 #' @export
 plotMarkers <- function(
   seMarker = NULL,
   name = NULL,
   cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5",
   plotAs = "Volcano",
-  scaleTo = 10^4
+  scaleTo = 10^4,
+  rastr = TRUE
   ){
 
   .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
@@ -1233,6 +1250,7 @@ plotMarkers <- function(
   .validInput(input = cutOff, name = "cutOff", valid = c("character"))
   .validInput(input = plotAs, name = "plotAs", valid = c("character"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  .validInput(input = rastr, name = "rastr", valid = c("boolean"))
 
   #Evaluate AssayNames
   assayNames <- names(SummarizedExperiment::assays(seMarker))
@@ -1287,7 +1305,7 @@ plotMarkers <- function(
       ylim = c(-qLFC, qLFC),
       size = 1,
       extend = 0,
-      rastr = TRUE, 
+      rastr = rastr, 
       labelMeans = FALSE,
       labelAsFactors = FALSE,
       pal = pal,
@@ -1304,7 +1322,7 @@ plotMarkers <- function(
       xlim = c(-qLFC, qLFC),
       extend = 0,
       size = 1,
-      rastr = TRUE, 
+      rastr = rastr, 
       labelMeans = FALSE,
       labelAsFactors = FALSE,
       pal = pal,
@@ -1321,7 +1339,7 @@ plotMarkers <- function(
       xlim = c(-qDiff, qDiff),
       extend = 0,
       size = 1,
-      rastr = TRUE, 
+      rastr = rastr, 
       labelMeans = FALSE,
       labelAsFactors = FALSE,
       pal = pal,

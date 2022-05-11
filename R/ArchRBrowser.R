@@ -292,7 +292,7 @@ ArchRBrowser <- function(
 
             region <- region[which(tolower(mcols(region)$symbol) %in% tolower(input$name))]
             region <- region[order(match(tolower(mcols(region)$symbol), tolower(input$name)))]
-            region1 <- resize(region, 1, "start")
+            region1 <- GenomicRanges::resize(region, 1, "start")
             strand(region1) <- "*"
 
             #Extend Region
@@ -752,7 +752,7 @@ plotBrowserTrack <- function(
       region <- region[which(tolower(mcols(region)$symbol) %in% tolower(geneSymbol))]
       region <- region[order(match(tolower(mcols(region)$symbol), tolower(geneSymbol)))]
       print(region)
-      region <- resize(region, 1, "start")
+      region <- GenomicRanges::resize(region, 1, "start")
       strand(region) <- "*"
       region <- extendGR(region, upstream = upstream, downstream = downstream)
     }
@@ -808,7 +808,7 @@ plotBrowserTrack <- function(
     }
     
     ##########################################################
-    # Bulk Tracks
+    # Single-cell Tracks
     ##########################################################
     if("sctrack" %in% tolower(plotSummary)){
       .logDiffTime(sprintf("Adding SC Tracks (%s of %s)",x,length(region)), t1=tstart, verbose=verbose, logFile=logFile)
@@ -850,7 +850,7 @@ plotBrowserTrack <- function(
     }
 
     ##########################################################
-    # Feature Tracks
+    # Loop Tracks
     ##########################################################
     if("looptrack" %in% tolower(plotSummary)){
       if(!is.null(loops)){

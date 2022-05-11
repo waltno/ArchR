@@ -171,7 +171,7 @@ createGeneAnnotation <- function(
 
     ###########################
     message("Getting TSS..")
-    TSS <- unique(resize(GenomicFeatures::transcripts(TxDb), width = 1, fix = "start"))
+    TSS <- unique(GenomicRanges::resize(GenomicFeatures::transcripts(TxDb), width = 1, fix = "start"))
 
     if(!is.null(inGenes)){
       genes <- .validGRanges(inGenes)
