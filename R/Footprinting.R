@@ -576,7 +576,7 @@ plotFootprints <- function(
       xlab("Distance to motif center (bp)") +
       coord_cartesian(
         expand = FALSE, 
-        ylim = c(quantile(plotFootDF$mean, 0.0001), 1.15*quantile(smoothFoot, 0.9999)), 
+        ylim = c(quantile(plotFootDF$mean, 0.0001), 1.25*quantile(smoothFoot, 0.999)), 
         xlim = c(min(plotFootDF$x),max(plotFootDF$x))
       ) + theme_ArchR(baseSize = baseSize) + ggtitle(name) +
       guides(fill = FALSE) + 
